@@ -1,0 +1,16 @@
+# окружение
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# сырые данные не храним, только скрипт загрузки
+data/*
+!data/.gitkeep
+
+# результаты симуляций большие, пересчитываются через make sim
+results/*.parquet
+
+.sim.log
