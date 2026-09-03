@@ -1,7 +1,13 @@
-"""Команды проекта: python -m abtest_sim.cli {sim}."""
+"""Команды проекта: python -m abtest_sim.cli {data,sim}."""
 
 import argparse
 import time
+
+
+def cmd_data(args):
+    from .data import download
+
+    download(force=args.force)
 
 
 def cmd_sim(args):
@@ -16,6 +22,10 @@ def cmd_sim(args):
 def main():
     parser = argparse.ArgumentParser(prog="abtest_sim")
     sub = parser.add_subparsers(dest="command", required=True)
+
+    p = sub.add_parser("data", help="скачать датасет Cookie Cats в data/")
+    p.add_argument("--force", action="store_true", help="скачать заново")
+    p.set_defaults(func=cmd_data)
 
     p = sub.add_parser("sim", help="посчитать симуляции в results/")
     p.add_argument("-s", "--scenario", action="append", help="имя сценария, можно несколько")
