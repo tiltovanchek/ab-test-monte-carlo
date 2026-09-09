@@ -1,4 +1,4 @@
-"""Команды проекта: python -m abtest_sim.cli {data,sim}."""
+"""Команды проекта: python -m abtest_sim.cli {data,sim,figures}."""
 
 import argparse
 import time
@@ -19,6 +19,13 @@ def cmd_sim(args):
         print(f"{name:<12} {len(df):>10,} строк {time.perf_counter() - start:7.1f} с")
 
 
+def cmd_figures(args):
+    from .plots import make_all
+
+    for path in make_all():
+        print(path)
+
+
 def main():
     parser = argparse.ArgumentParser(prog="abtest_sim")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -31,6 +38,9 @@ def main():
     p.add_argument("-s", "--scenario", action="append", help="имя сценария, можно несколько")
     p.add_argument("-j", "--jobs", type=int, help="число процессов")
     p.set_defaults(func=cmd_sim)
+
+    p = sub.add_parser("figures", help="построить графики в figures/")
+    p.set_defaults(func=cmd_figures)
 
     args = parser.parse_args()
     args.func(args)
