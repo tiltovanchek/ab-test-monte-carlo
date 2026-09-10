@@ -1,0 +1,7 @@
+n,reps,method,seconds,speedup,cpu
+1000,100000,Цикл Python по повторениям,21.74879138700021,1.0,AMD Ryzen 7 5700U with Radeon Graphics
+1000,100000,Векторизация NumPy,12.111251988999811,1.7957508775107487,AMD Ryzen 7 5700U with Radeon Graphics
+1000,100000,Векторизация + 4 процесса,4.997515614000122,4.351920647545911,AMD Ryzen 7 5700U with Radeon Graphics
+10000,10000,Цикл Python по повторениям,7.140913434999902,1.0,AMD Ryzen 7 5700U with Radeon Graphics
+10000,10000,Векторизация NumPy,12.596274516999983,0.56690678068047,AMD Ryzen 7 5700U with Radeon Graphics
+10000,10000,Векторизация + 4 процесса,3.45251430899998,2.068322618210456,AMD Ryzen 7 5700U with Radeon Graphics

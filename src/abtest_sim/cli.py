@@ -1,4 +1,4 @@
-"""Команды проекта: python -m abtest_sim.cli {data,sim,figures}."""
+"""Команды проекта: python -m abtest_sim.cli {data,sim,figures,benchmark}."""
 
 import argparse
 import time
@@ -26,6 +26,12 @@ def cmd_figures(args):
         print(path)
 
 
+def cmd_benchmark(args):
+    from .benchmark import run_benchmark
+
+    print(run_benchmark(args.jobs).to_string(index=False))
+
+
 def main():
     parser = argparse.ArgumentParser(prog="abtest_sim")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -41,6 +47,10 @@ def main():
 
     p = sub.add_parser("figures", help="построить графики в figures/")
     p.set_defaults(func=cmd_figures)
+
+    p = sub.add_parser("benchmark", help="сравнить цикл, векторизацию и процессы")
+    p.add_argument("-j", "--jobs", type=int, default=4, help="число процессов")
+    p.set_defaults(func=cmd_benchmark)
 
     args = parser.parse_args()
     args.func(args)
