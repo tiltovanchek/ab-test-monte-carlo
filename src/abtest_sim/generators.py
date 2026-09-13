@@ -135,5 +135,5 @@ def activity_with_dropout(n, drop_rate, low_quantile, rng, mu=2.0, sigma=1.0):
     if n_drop:
         threshold = np.exp(mu + sigma * norm.ppf(low_quantile))
         low = np.flatnonzero(b < threshold)
-        b = np.delete(b, rng.choice(low, size=n_drop, replace=False))
+        b = np.delete(b, rng.choice(low, size=min(n_drop, low.size), replace=False))
     return a, b

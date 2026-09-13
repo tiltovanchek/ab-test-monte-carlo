@@ -2,6 +2,7 @@
 цикл Python по экспериментам, векторизация NumPy и векторизация плюс процессы.
 Размеры задачи берутся из config.yaml."""
 
+import platform
 import time
 from functools import partial
 
@@ -31,11 +32,14 @@ def python_loop(n, reps, cfg, seed):
 
 
 def cpu_name():
-    with open("/proc/cpuinfo") as f:
-        for line in f:
-            if line.startswith("model name"):
-                return line.split(":", 1)[1].strip()
-    return "unknown"
+    try:
+        with open("/proc/cpuinfo") as f:
+            for line in f:
+                if line.startswith("model name"):
+                    return line.split(":", 1)[1].strip()
+    except OSError:
+        pass
+    return platform.processor() or platform.machine()
 
 
 def _seconds(fn, *args, **kwargs):

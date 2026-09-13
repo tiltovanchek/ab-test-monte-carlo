@@ -71,12 +71,26 @@ def task_seed(seed, task):
     return np.random.SeedSequence([seed, zlib.crc32(task.key.encode())])
 
 
+def _available_gb():
+    """Доступная память из /proc/meminfo. Не на Linux вернёт None."""
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) / 2**20
+    except OSError:
+        pass
+    return None
+
+
 def safe_n_jobs(n_jobs, gb_per_job=1.0):
-    """Не больше ядер и не больше одного процесса на гигабайт свободной памяти."""
+    """Не больше ядер и не больше одного процесса на гигабайт доступной памяти."""
     cpus = os.cpu_count() or 1
     n_jobs = cpus if n_jobs < 1 else min(n_jobs, cpus)
-    free_gb = os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE") / 2**30
-    return max(1, min(n_jobs, int(free_gb / gb_per_job)))
+    available = _available_gb()
+    if available is not None:
+        n_jobs = min(n_jobs, int(available / gb_per_job))
+    return max(1, n_jobs)
 
 
 def chunk_for(task, chunk_size, max_cells):
