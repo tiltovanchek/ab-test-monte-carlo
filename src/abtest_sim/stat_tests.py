@@ -96,9 +96,8 @@ def mann_whitney(a, b, alpha=ALPHA):
     u_b = ranks[..., n_a:].sum(-1) - n_b * (n_b + 1) / 2
 
     # дисперсия U через сумму квадратов рангов - так сразу учитываются одинаковые значения
-    var_u = n_a * n_b / (n * (n - 1)) * (ranks**2).sum(-1) - n_a * n_b * (n + 1) ** 2 / (
-        4 * (n - 1)
-    )
+    sum_sq = (ranks**2).sum(-1)
+    var_u = n_a * n_b * (sum_sq / (n * (n - 1)) - (n + 1) ** 2 / (4 * (n - 1)))
     sigma = np.sqrt(np.maximum(var_u, 0))
 
     # как в scipy: берём больший из двух U и поправку на непрерывность 0.5

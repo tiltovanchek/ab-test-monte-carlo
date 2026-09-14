@@ -11,19 +11,20 @@ NAME = "peeking"
 
 def build_tasks(cfg):
     sc = cfg["scenarios"][NAME]
-    return [
-        Task(
-            NAME,
-            "conversion",
-            sc["n_total"],
-            u,
-            param=f"looks={k}",
-            n_reps=sc["n_reps"],
-            kwargs={"looks": k},
-        )
-        for u in (0.0, sc["uplift_power"])
-        for k in sc["looks"]
-    ]
+    tasks = []
+    for u in (0.0, sc["uplift_power"]):
+        for k in sc["looks"]:
+            task = Task(
+                NAME,
+                "conversion",
+                sc["n_total"],
+                u,
+                f"looks={k}",
+                sc["n_reps"],
+                kwargs={"looks": k},
+            )
+            tasks.append(task)
+    return tasks
 
 
 def cumulative_z(n_total, looks, p, uplift, rng, reps):
@@ -43,18 +44,17 @@ def cumulative_z(n_total, looks, p, uplift, rng, reps):
 def simulate(task, n_reps, rng, cfg):
     k = task.kwargs["looks"]
     alpha = cfg["alpha"]
-    z, pv = cumulative_z(
-        task.n_per_group, k, cfg["metrics"]["conversion"]["p"], task.uplift, rng, n_reps
-    )
+    p = cfg["metrics"]["conversion"]["p"]
+    z, pv = cumulative_z(task.n_per_group, k, p, task.uplift, rng, n_reps)
+    # p_value у всех трёх правил одинаковый (минимум по проверкам),
+    # отличается только решение остановить тест - оно в reject
     p_min = pv.min(1)
+    pocock = (np.abs(z) > cr.pocock_boundary(k, alpha)).any(1)
+    obf = (np.abs(z) > cr.obrien_fleming_boundary(k, alpha)).any(1)
     return [
         Block("naive", p_min, reject=p_min < alpha),
-        Block("pocock", p_min, reject=(np.abs(z) > cr.pocock_boundary(k, alpha)).any(1)),
-        Block(
-            "obrien_fleming",
-            p_min,
-            reject=(np.abs(z) > cr.obrien_fleming_boundary(k, alpha)).any(1),
-        ),
+        Block("pocock", p_min, reject=pocock),
+        Block("obrien_fleming", p_min, reject=obf),
     ]
 
 

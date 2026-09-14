@@ -14,24 +14,27 @@ def build_tasks(cfg):
     tasks = []
     for total in sc["n_totals"]:
         for share in sc["shares_b"]:
-            kw = {"total": total, "share_b": share}
             param = f"N={total};share_b={share}"
+            kw = {"total": total, "share_b": share}
             # массивов наблюдений тут нет, поэтому чанк можно взять большим
-            tasks.append(
-                Task(NAME, "split", total // 2, 0.0, param, sc["n_reps"], sc["alpha_srm"], 1000, kw)
+            task = Task(
+                NAME,
+                "split",
+                total // 2,
+                0.0,
+                param,
+                sc["n_reps"],
+                alpha=sc["alpha_srm"],
+                chunk_size=1000,
+                kwargs=kw,
             )
+            tasks.append(task)
+
     d = sc["dropout"]
     for rate in d["drop_rates"]:
+        kw = {"drop_rate": rate}
         tasks.append(
-            Task(
-                NAME,
-                "activity",
-                d["n_total"] // 2,
-                0.0,
-                f"drop={rate}",
-                sc["n_reps"],
-                kwargs={"drop_rate": rate},
-            )
+            Task(NAME, "activity", d["n_total"] // 2, 0.0, f"drop={rate}", sc["n_reps"], kwargs=kw)
         )
     return tasks
 
