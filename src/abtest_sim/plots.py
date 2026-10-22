@@ -176,7 +176,7 @@ def power_curves(con):
     df = _rates(con).query("scenario == 'power'").sort_values("n_per_group")
     n_grid = np.geomspace(df["n_per_group"].min(), df["n_per_group"].max(), 200)
 
-    fig, ax = plt.subplots(figsize=(9, 4.8))
+    fig, ax = plt.subplots(figsize=(11, 4.8))
     for color, (u, d) in zip(COLORS, df.groupby("uplift"), strict=False):
         ax.plot(n_grid, power_two_proportions(p, u, n_grid), ls="--", lw=1.2, color=color)
         label = f"uplift +{u:.0%}"
@@ -189,7 +189,13 @@ def power_curves(con):
     ax.set_xlabel("Пользователей в группе (лог. шкала)")
     ax.set_ylabel("Мощность z-теста")
     _pct(ax)
-    ax.legend(title="точки - симуляция,\nпунктир - формула", loc="lower right", fontsize=9)
+    ax.legend(
+        title="точки - симуляция,\nпунктир - формула",
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        borderaxespad=0,
+        fontsize=9,
+    )
     ax.set_title("Симуляция совпадает с формулой; вдвое меньший эффект требует ~4x выборку")
     return _save(fig, "power_curves")
 
@@ -224,7 +230,15 @@ def fpr_by_test(con):
         ax.set_title(METRIC_NAMES[metric], fontsize=11)
         ax.set_xlabel("Пользователей в группе")
         ax.set_ylim(0, 0.11)
-        ax.legend(fontsize=8, loc="upper right")
+        if metric == "ctr":
+            ax.legend(
+                fontsize=8,
+                loc="upper left",
+                bbox_to_anchor=(1.02, 1),
+                borderaxespad=0,
+            )
+        else:
+            ax.legend(fontsize=8, loc="upper right")
 
     ax = axes.flat[4]
     _alpha_line(ax)
